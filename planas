@@ -1,0 +1,8 @@
+Puyo Pop klonas
+* Išsinagrinėti PyGame veikimą (Bal 8)
+* Padaryti pradinį langą su krentančiais įvairių spalvų blokais. (Bal 15)
+* Padaryti blokų judinimą ir vartaliojimą (Bal 22)
+* Keturių ar daugiau šalia esančių blokų sunaikinimas, taškų skaičiavimas (Bal 29)
+* Gyvo priešininko implementacija (Geg 5)
+* Dirbtinis intelektas (Geg 19)
+* Nustatymai (sudėtingumas, valdymas ir pan.) (Geg 26)
