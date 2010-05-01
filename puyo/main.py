@@ -21,19 +21,19 @@ screen.blit(background, (0, 0))
 pygame.display.flip()
 
 board = Board((32, 32))
-board.spawn_puyo()
-allsprites = pygame.sprite.RenderPlain((board))
+board.spawn_puyo_pair()
 clock = pygame.time.Clock()
 
 while 1:
     clock.tick(60)
-    
+
     for event in pygame.event.get():
         if event.type == QUIT:
             sys.exit(0)
 
-    allsprites.update()
+    board.update()
 
     screen.blit(background, (0, 0))
-    allsprites.draw(screen)
+    board.draw(screen)
     pygame.display.flip()
+
