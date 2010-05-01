@@ -19,17 +19,18 @@ class Board(pygame.sprite.Group, Movable):
         self.current_pair = (self.__spawn_puyo(self.rows_count - 2), self.__spawn_puyo(self.rows_count - 1))
         self._board = None
 
-    def move_left(self):
-        left, right = sorted(self.current_pair, key=lambda puyo: puyo.x)
-        if self.__move_puyo(left, -self.puyo_size[0], 0):
-            self.__move_puyo(right, -self.puyo_size[0], 0)
-
-    def move_right(self):
-        left, right = sorted(self.current_pair, key=lambda puyo: puyo.x)
-        if self.__move_puyo(right, self.puyo_size[0], 0):
-            self.__move_puyo(left, self.puyo_size[0], 0)
+    def move(self, right):
+        if len(self.current_pair) < 2:
+            return
+        first, second = sorted(self.current_pair, key=lambda puyo: puyo.x, reverse=right)
+        dx = self.puyo_size[0] if right else -self.puyo_size[0]
+        if self.__move_puyo(first, dx, 0):
+            self.__move_puyo(second, dx, 0)
 
     def rotate(self):
+        if len(self.current_pair) < 2:
+            return
+
         if self.current_pair[0].row == self.current_pair[1].row:
             if self.current_pair[0].col > self.current_pair[1].col:
                 self.__move_puyo(self.current_pair[1], self.puyo_size[0], -self.puyo_size[1])
@@ -59,6 +60,11 @@ class Board(pygame.sprite.Group, Movable):
 
     def update(self, *args):
         pygame.sprite.Group.update(self, *args)
+
+        for puyo in self.current_pair:
+            if not self.__can_move(puyo, 0, 1, self.current_pair):
+                self.current_pair = ()
+                break
         for puyo in sorted(self, key=lambda puyo: puyo.row, reverse=True):
             self.__move_puyo(puyo, 0, 1)
         self._board = None
@@ -71,26 +77,25 @@ class Board(pygame.sprite.Group, Movable):
 
     def __move_puyo(self, puyo, dx, dy):
         if puyo:
-            if self.__can_move(puyo, puyo.x + dx, puyo.y + dy):
+            if self.__can_move(puyo, dx, dy):
                 puyo.y += dy
                 puyo.x += dx
                 return True
         else:
                 return False
 
-    def __can_move(self, puyo, x, y):
-        row = puyo.get_row(y)
+    def __can_move(self, puyo, dx, dy, non_blocking_puyos = ()):
+        x = puyo.x + dx
+        y = puyo.y + dy
         col = puyo.get_col(x)
+        row = puyo.get_row(y)
         if puyo.row == row and puyo.col == col:
             return True
         elif y >= self.height or x < 0 or x >= self.width:
             return False
         else:
             blocking_puyo = self.board[row][col]
-            if blocking_puyo and blocking_puyo.row == row and blocking_puyo.col == col:
-                return False
-            else:
-                return True
+            return blocking_puyo is None or blocking_puyo.row != row or blocking_puyo.col != col or (puyo in non_blocking_puyos)
 
     def get_board(self):
         if self._board is None:

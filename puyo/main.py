@@ -34,9 +34,9 @@ while 1:
             if event.key == K_UP:
                 board.rotate()
             if event.key == K_LEFT:
-                board.move_left()
+                board.move(False)
             if event.key == K_RIGHT:
-                board.move_right()
+                board.move(True)
 
     board.update()
 

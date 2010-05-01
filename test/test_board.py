@@ -102,27 +102,43 @@ class TestBoardWithPuyos:
         assert_equal(self.p2.row, 1)
         assert_equal(self.p1.col, 0)
 
+    def test_rotate_without_current_pair(self):
+        self.subject.current_pair = ()
+        self.subject.rotate()
+
     def test_move_left(self):
-        self.subject.move_left()
+        self.subject.move(False)
         assert_equal(self.p2.col, 1)
         assert_equal(self.p1.col, 1)
 
     def test_move_left_impossible(self):
         self.p2.x = 0
         self.p1.x = 64
-        self.subject.move_left()
+        self.subject.move(False)
         assert_equal(self.p2.col, 0)
         assert_equal(self.p1.col, 1)
 
     def test_move_right(self):
-        self.subject.move_right()
+        self.subject.move(True)
         assert_equal(self.p2.col, 3)
         assert_equal(self.p1.col, 3)
 
     def test_move_right_impossible(self):
         self.p2.x = 4 * 64
         self.p1.x = 5 * 64
-        self.subject.move_right()
+        self.subject.move(True)
         assert_equal(self.p2.col, 4)
         assert_equal(self.p1.col, 5)
+
+    def test_move_without_current_pair(self):
+        self.subject.current_pair = ()
+        self.subject.move(True)
+
+    def test_reset_current_pair(self):
+        self.subject.update()
+        self.subject.update()
+        assert_equal(self.subject.current_pair, (self.p1, self.p2))
+        self.p2.y = self.subject.height - 1
+        self.subject.update()
+        assert_equal(self.subject.current_pair, ())
 
