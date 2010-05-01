@@ -16,38 +16,78 @@ class Board(pygame.sprite.Group, Movable):
         self._board = None
 
     def spawn_puyo_pair(self):
-        self.__spawn_puyo(self.rows_count - 2)
-        self.__spawn_puyo(self.rows_count - 1)
+        self.current_pair = (self.__spawn_puyo(self.rows_count - 2), self.__spawn_puyo(self.rows_count - 1))
+        self._board = None
+
+    def move_left(self):
+        left, right = sorted(self.current_pair, key=lambda puyo: puyo.x)
+        if self.__move_puyo(left, -self.puyo_size[0], 0):
+            self.__move_puyo(right, -self.puyo_size[0], 0)
+
+    def move_right(self):
+        left, right = sorted(self.current_pair, key=lambda puyo: puyo.x)
+        if self.__move_puyo(right, self.puyo_size[0], 0):
+            self.__move_puyo(left, self.puyo_size[0], 0)
+
+    def rotate(self):
+        if self.current_pair[0].row == self.current_pair[1].row:
+            if self.current_pair[0].col > self.current_pair[1].col:
+                self.__move_puyo(self.current_pair[1], self.puyo_size[0], -self.puyo_size[1])
+            else:
+                self.__move_puyo(self.current_pair[1], -self.puyo_size[0], self.puyo_size[1])
+        else:
+            if self.current_pair[0].row > self.current_pair[1].row:
+                # Prie desines sienos
+                if self.current_pair[1].col == self.cols_count - 1:
+                    if self.__move_puyo(self.current_pair[0], -self.puyo_size[0], 0):
+                        self.__move_puyo(self.current_pair[1], 0, self.puyo_size[1])
+                else:
+                    self.__move_puyo(self.current_pair[1], self.puyo_size[0], self.puyo_size[1])
+            else:
+                # Prie kaires sienos
+                if self.current_pair[1].col == 0:
+                    if self.__move_puyo(self.current_pair[0], self.puyo_size[0], 0):
+                        self.__move_puyo(self.current_pair[1], 0, -self.puyo_size[1])
+                else:
+                    self.__move_puyo(self.current_pair[1], -self.puyo_size[0], -self.puyo_size[1])
         self._board = None
 
     def __spawn_puyo(self, row):
         puyo = Puyo(self, random.choice(COLORS), self.rows_count - row - 2)
         self.add(puyo)
+        return puyo
 
     def update(self, *args):
         pygame.sprite.Group.update(self, *args)
-        for puyo in self:
+        for puyo in sorted(self, key=lambda puyo: puyo.row, reverse=True):
             self.__move_puyo(puyo, 0, 1)
         self._board = None
 
     def draw(self, surface):
         surface.blit(self.background, self.rect)
-        pygame.sprite.Group.draw(self, surface)
+        for puyo in self:
+            if puyo.row >= 0:
+                surface.blit(puyo.image, puyo.rect)
 
     def __move_puyo(self, puyo, dx, dy):
         if puyo:
-            new_row = puyo.get_row(puyo.y + dy)
-            if self.is_free(puyo, new_row):
+            if self.__can_move(puyo, puyo.x + dx, puyo.y + dy):
                 puyo.y += dy
+                puyo.x += dx
+                return True
+        else:
+                return False
 
-    def is_free(self, puyo, row):
-        if puyo.row == row:
+    def __can_move(self, puyo, x, y):
+        row = puyo.get_row(y)
+        col = puyo.get_col(x)
+        if puyo.row == row and puyo.col == col:
             return True
-        elif puyo.y >= self.height - 1:
+        elif y >= self.height or x < 0 or x >= self.width:
             return False
         else:
-            blocking_puyo = self.board[row][puyo.col]
-            if blocking_puyo and blocking_puyo.row == row:
+            blocking_puyo = self.board[row][col]
+            if blocking_puyo and blocking_puyo.row == row and blocking_puyo.col == col:
                 return False
             else:
                 return True

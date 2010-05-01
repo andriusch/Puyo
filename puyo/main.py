@@ -30,6 +30,13 @@ while 1:
     for event in pygame.event.get():
         if event.type == QUIT:
             sys.exit(0)
+        elif event.type == KEYDOWN:
+            if event.key == K_UP:
+                board.rotate()
+            if event.key == K_LEFT:
+                board.move_left()
+            if event.key == K_RIGHT:
+                board.move_right()
 
     board.update()
 
