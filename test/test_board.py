@@ -14,6 +14,8 @@ class TestBoard:
         assert_equal(self.subject.width, 64 * 6)
         assert_equal(self.subject.height, 64 * 14)
         assert_equal(self.subject.puyo_size, (64, 64))
+        assert_equal(self.subject.current_pair, ())
+        assert_equal(self.subject.state, 'placing')
 
     def test_initialized_with_background(self):
         assert isinstance(self.subject.background, pygame.Surface)
@@ -25,7 +27,7 @@ class TestBoard:
         b[0][2] = self.subject.sprites()[0]
         assert_equal(self.subject.board, b)
 
-class TestBoardWithPuyos:
+class TestBoardWithPuyoPair:
     def setup(self):
         self.subject = Board((64, 64))
         self.subject.spawn_puyo_pair()
@@ -141,4 +143,59 @@ class TestBoardWithPuyos:
         self.p2.y = self.subject.height - 1
         self.subject.update()
         assert_equal(self.subject.current_pair, ())
+        assert_equal(self.subject.state, 'scoring')
+
+    def test_reset_current_pair_if_dropped_on_other_puyo(self):
+        self.p2.y = self.subject.height - 65
+        blocking_puyo = Puyo(self.subject, 'red')
+        self.subject.add(blocking_puyo)
+        blocking_puyo.x = 2 * 64
+        blocking_puyo.y = self.subject.height - 1
+        self.subject.update()
+        assert_equal(self.subject.current_pair, ())
+
+class TestBoardWithPuyos:
+    def setup(self):
+        self.subject = Board((64, 64))
+        self.add_puyo('red', 14, 0)
+        self.add_puyo('red', 14, 1)
+        self.add_puyo('red', 13, 0)
+        self.subject.state = 'scoring'
+
+    def add_puyo(self, color, row, col):
+        puyo = Puyo(self.subject, color)
+        puyo.x = col * 64
+        puyo.y = row * 64 + 63
+        self.subject.add(puyo)
+
+    def test_deletes_four_touching_puyos(self):
+        self.add_puyo('red', 12, 0)
+        self.subject.update()
+        assert_equal(len(self.subject), 0)
+        assert_equal(self.subject.board[12][0], None)
+        assert_equal(self.subject.board[14][0], None)
+        assert_equal(self.subject.board[14][1], None)
+        assert_equal(self.subject.board[13][0], None)
+        assert_equal(self.subject.state, 'scoring')
+
+    def test_deletes_only_if_nothing_is_dropping(self):
+        self.add_puyo('red', 12, 0)
+        self.add_puyo('red', 1, 0)
+        self.subject.update()
+        assert_equal(len(self.subject), 5)
+        assert_equal(self.subject.state, 'scoring')
+
+    def test_does_not_delete_less_than_four(self):
+        self.subject.update()
+        assert_equal(len(self.subject), 5)
+
+    def test_deletes_only_same_color(self):
+        self.add_puyo('green', 12, 0)
+        self.subject.update()
+        assert_equal(len(self.subject), 6)
+
+    def test_switched_back_to_placing_state(self):
+        self.subject.update()
+        assert_equal(self.subject.state, 'placing')
+        assert_equal(len(self.subject), 5)
 

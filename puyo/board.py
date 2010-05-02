@@ -14,6 +14,8 @@ class Board(pygame.sprite.Group, Movable):
 
         self.puyo_size = puyo_size
         self._board = None
+        self.current_pair = ()
+        self.state = 'placing'
 
     def spawn_puyo_pair(self):
         self.current_pair = (self.__spawn_puyo(self.rows_count - 2), self.__spawn_puyo(self.rows_count - 1))
@@ -60,14 +62,52 @@ class Board(pygame.sprite.Group, Movable):
 
     def update(self, *args):
         pygame.sprite.Group.update(self, *args)
+        self.__reset_current_pair()
 
+        dropping = False
+        for puyo in sorted(self, key=lambda puyo: puyo.row, reverse=True):
+            if self.__move_puyo(puyo, 0, 1):
+                dropping = True
+
+        if self.state == 'scoring' and not dropping:
+            if not self.__scan_puyo_combos():
+                self.state = 'placing'
+                self.spawn_puyo_pair()
+        self._board = None
+
+    def __reset_current_pair(self):
         for puyo in self.current_pair:
+            bpuyo = self.board[puyo.row + 1][puyo.col]
             if not self.__can_move(puyo, 0, 1, self.current_pair):
                 self.current_pair = ()
-                break
-        for puyo in sorted(self, key=lambda puyo: puyo.row, reverse=True):
-            self.__move_puyo(puyo, 0, 1)
-        self._board = None
+                self.state = 'scoring'
+                return
+
+    def __scan_puyo_combos(self):
+        deleted = False
+        for puyo in self:
+            result = set([])
+            self.__scan_puyo_combos_from(puyo, puyo, result)
+            if len(result) >= 4:
+                deleted = True
+                self.remove(*result)
+                for deleted_puyo in result:
+                    self.board[deleted_puyo.row][deleted_puyo.col] = None
+        return deleted
+
+    def __scan_puyo_combos_from(self, puyo, last_puyo, result):
+        if puyo is None or puyo in result or not last_puyo.same_color(puyo):
+            return
+        result.add(puyo)
+        if puyo.row < self.rows_count - 1:
+            self.__scan_puyo_combos_from(self.board[puyo.row + 1][puyo.col], puyo, result)
+        if puyo.row > 0:
+            self.__scan_puyo_combos_from(self.board[puyo.row - 1][puyo.col], puyo, result)
+        if puyo.col < self.cols_count - 1:
+            self.__scan_puyo_combos_from(self.board[puyo.row][puyo.col + 1], puyo, result)
+        if puyo.col > 0:
+            self.__scan_puyo_combos_from(self.board[puyo.row][puyo.col - 1], puyo, result)
+
 
     def draw(self, surface):
         surface.blit(self.background, self.rect)
@@ -95,11 +135,14 @@ class Board(pygame.sprite.Group, Movable):
             return False
         else:
             blocking_puyo = self.board[row][col]
-            return blocking_puyo is None or blocking_puyo.row != row or blocking_puyo.col != col or (puyo in non_blocking_puyos)
+            return blocking_puyo is None or blocking_puyo.row != row or blocking_puyo.col != col or (blocking_puyo in non_blocking_puyos)
+
+    def __empty_board(self):
+        return [[None for col in range(self.cols_count)] for row in range(self.rows_count)]
 
     def get_board(self):
         if self._board is None:
-            self._board = [[None for col in range(self.cols_count)] for row in range(self.rows_count)]
+            self._board = self.__empty_board()
             for puyo in self:
                 if puyo.row >= 0:
                     self._board[puyo.row][puyo.col] = puyo

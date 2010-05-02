@@ -7,6 +7,7 @@ class Puyo(Sprite, Movable):
         self.image = pygame.transform.smoothscale(Sprite.load_image(self, 'puyo_%s.png' % color), parent.puyo_size)
         width, height = parent.puyo_size
         Movable.__init__(self, pygame.Rect(2 * width, row * height, width, height), parent)
+        self.color = color
 
     def get_row(self, y = None):
         if y is None:
@@ -23,4 +24,7 @@ class Puyo(Sprite, Movable):
     def get_rect(self):
         return self.create_rect(self.col * self.width, self.row * self.height, self.width, self.height)
     rect = property(get_rect)
+
+    def same_color(self, other_puyo):
+        return self.color == other_puyo.color
 

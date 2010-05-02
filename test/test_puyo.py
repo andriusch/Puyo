@@ -48,3 +48,7 @@ class TestPuyo:
         self.puyo.update()
         assert_equal(self.puyo.y, 13 * 32)
 
+    def test_same_color(self):
+        assert self.puyo.same_color(Puyo(self.board, 'red'))
+        assert_false(self.puyo.same_color(Puyo(self.board, 'green')))
+
