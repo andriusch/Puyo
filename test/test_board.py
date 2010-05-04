@@ -163,8 +163,8 @@ class TestBoardWithPuyoPair(TestBoardCommon):
         puyo = self.add_puyo('red', 3, 3)
         self.subject.update(True)
         assert_equal(puyo.y, 4 * 64)
-        assert_equal(self.p1.y, 10)
-        assert_equal(self.p2.y, -54)
+        assert_equal(self.p1.y, 15)
+        assert_equal(self.p2.y, -49)
 
 class TestBoardWithPuyos(TestBoardCommon):
     def setup(self):

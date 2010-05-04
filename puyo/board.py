@@ -25,7 +25,7 @@ class Board(pygame.sprite.Group, Movable):
         self.score.chain = 0
 
     def move(self, right):
-        if len(self.current_pair) < 2:
+        if not self.current_pair:
             return
         first, second = sorted(self.current_pair, key=lambda puyo: puyo.x, reverse=right)
         dx = self.puyo_size[0] if right else -self.puyo_size[0]
@@ -33,7 +33,7 @@ class Board(pygame.sprite.Group, Movable):
             self.__move_puyo(second, dx, 0)
 
     def rotate(self):
-        if len(self.current_pair) < 2:
+        if not self.current_pair:
             return
 
         if self.current_pair[0].row == self.current_pair[1].row:
