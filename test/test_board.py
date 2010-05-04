@@ -4,21 +4,21 @@ import pygame
 
 class TestBoard:
     def setup(self):
+        pygame.init()
         self.subject = Board((64, 64))
 
     def test_initializing(self):
         assert_equal(self.subject.rows_count, 15)
         assert_equal(self.subject.cols_count, 6)
         assert_equal(self.subject.x, 10)
-        assert_equal(self.subject.y, 10)
+        assert_equal(self.subject.y, 74)
         assert_equal(self.subject.width, 64 * 6)
         assert_equal(self.subject.height, 64 * 14)
         assert_equal(self.subject.puyo_size, (64, 64))
         assert_equal(self.subject.current_pair, ())
         assert_equal(self.subject.state, 'placing')
-
-    def test_initialized_with_background(self):
         assert isinstance(self.subject.background, pygame.Surface)
+        assert isinstance(self.subject.score, Score)
 
     def test_board(self):
         b = [[None, None, None, None, None, None] for row in range(15)]
@@ -194,8 +194,15 @@ class TestBoardWithPuyos:
         self.subject.update()
         assert_equal(len(self.subject), 6)
 
+    def test_score_score(self):
+        self.add_puyo('red', 12, 0)
+        self.subject.update()
+        assert_equal(self.subject.score.points, 40)
+
     def test_switched_back_to_placing_state(self):
+        self.subject.score.chain = 1
         self.subject.update()
         assert_equal(self.subject.state, 'placing')
         assert_equal(len(self.subject), 5)
+        assert_equal(self.subject.score.chain, 0)
 

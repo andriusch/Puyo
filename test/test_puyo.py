@@ -32,11 +32,11 @@ class TestPuyo:
 
     def test_updates_rectangle_on_move(self):
         self.puyo.y, self.puyo.x = 127, 127
-        assert_equal(self.puyo.rect.top, 106)
+        assert_equal(self.puyo.rect.top, 138)
         assert_equal(self.puyo.rect.left, 106)
 
         self.puyo.y, self.puyo.x = 128, 128
-        assert_equal(self.puyo.rect.top, 138)
+        assert_equal(self.puyo.rect.top, 170)
         assert_equal(self.puyo.rect.left, 138)
 
     def test_allows_passing_row_on_initialize(self):

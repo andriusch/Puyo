@@ -1,5 +1,6 @@
 import pygame, random
 from puyo import *
+from score import *
 COLORS = ['blue', 'green', 'purple', 'red', 'yellow']
 
 class Board(pygame.sprite.Group, Movable):
@@ -7,7 +8,7 @@ class Board(pygame.sprite.Group, Movable):
         pygame.sprite.Group.__init__(self)
         self.rows_count = 15
         self.cols_count = 6
-        Movable.__init__(self, pygame.Rect(10, 10, puyo_size[0] * self.cols_count, puyo_size[1] * (self.rows_count - 1)))
+        Movable.__init__(self, pygame.Rect(10, 10 + puyo_size[1], puyo_size[0] * self.cols_count, puyo_size[1] * (self.rows_count - 1)))
 
         self.background = pygame.Surface(self.rect.size)
         self.background.fill((240, 240, 240))
@@ -16,10 +17,12 @@ class Board(pygame.sprite.Group, Movable):
         self._board = None
         self.current_pair = ()
         self.state = 'placing'
+        self.score = Score(pygame.Rect(self.rect.left, self.rect.top - puyo_size[1], self.rect.width, puyo_size[1]))
 
     def spawn_puyo_pair(self):
         self.current_pair = (self.__spawn_puyo(self.rows_count - 2), self.__spawn_puyo(self.rows_count - 1))
         self._board = None
+        self.score.chain = 0
 
     def move(self, right):
         if len(self.current_pair) < 2:
@@ -84,16 +87,17 @@ class Board(pygame.sprite.Group, Movable):
                 return
 
     def __scan_puyo_combos(self):
-        deleted = False
         for puyo in self:
             result = set([])
             self.__scan_puyo_combos_from(puyo, puyo, result)
+
             if len(result) >= 4:
-                deleted = True
+                self.score.add_score(len(result))
                 self.remove(*result)
                 for deleted_puyo in result:
                     self.board[deleted_puyo.row][deleted_puyo.col] = None
-        return deleted
+
+        return self.score.scored()
 
     def __scan_puyo_combos_from(self, puyo, last_puyo, result):
         if puyo is None or puyo in result or not last_puyo.same_color(puyo):
@@ -114,6 +118,7 @@ class Board(pygame.sprite.Group, Movable):
         for puyo in self:
             if puyo.row >= 0:
                 surface.blit(puyo.image, puyo.rect)
+        surface.blit(self.score.image, self.score.rect)
 
     def __move_puyo(self, puyo, dx, dy):
         if puyo:

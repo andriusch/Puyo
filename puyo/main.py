@@ -24,7 +24,7 @@ board = Board((32, 32))
 board.spawn_puyo_pair()
 clock = pygame.time.Clock()
 
-while 1:
+while True:
     clock.tick(60)
 
     for event in pygame.event.get():
