@@ -1,10 +1,17 @@
 from puyo.board import *
 from nose.tools import *
 import pygame
+pygame.init()
 
-class TestBoard:
+class TestBoardCommon(object):
+    def add_puyo(self, color, row, col):
+        puyo = Puyo(self.subject, color)
+        puyo.x = col * 64
+        puyo.y = row * 64 + 63
+        self.subject.add(puyo)
+
+class TestBoard(TestBoardCommon):
     def setup(self):
-        pygame.init()
         self.subject = Board((64, 64))
 
     def test_initializing(self):
@@ -27,7 +34,7 @@ class TestBoard:
         b[0][2] = self.subject.sprites()[0]
         assert_equal(self.subject.board, b)
 
-class TestBoardWithPuyoPair:
+class TestBoardWithPuyoPair(TestBoardCommon):
     def setup(self):
         self.subject = Board((64, 64))
         self.subject.spawn_puyo_pair()
@@ -147,26 +154,17 @@ class TestBoardWithPuyoPair:
 
     def test_reset_current_pair_if_dropped_on_other_puyo(self):
         self.p2.y = self.subject.height - 65
-        blocking_puyo = Puyo(self.subject, 'red')
-        self.subject.add(blocking_puyo)
-        blocking_puyo.x = 2 * 64
-        blocking_puyo.y = self.subject.height - 1
+        self.add_puyo('red', 13, 2)
         self.subject.update()
         assert_equal(self.subject.current_pair, ())
 
-class TestBoardWithPuyos:
+class TestBoardWithPuyos(TestBoardCommon):
     def setup(self):
         self.subject = Board((64, 64))
         self.add_puyo('red', 14, 0)
         self.add_puyo('red', 14, 1)
         self.add_puyo('red', 13, 0)
         self.subject.state = 'scoring'
-
-    def add_puyo(self, color, row, col):
-        puyo = Puyo(self.subject, color)
-        puyo.x = col * 64
-        puyo.y = row * 64 + 63
-        self.subject.add(puyo)
 
     def test_deletes_four_touching_puyos(self):
         self.add_puyo('red', 12, 0)
