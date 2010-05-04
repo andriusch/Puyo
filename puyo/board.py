@@ -63,13 +63,14 @@ class Board(pygame.sprite.Group, Movable):
         self.add(puyo)
         return puyo
 
-    def update(self, *args):
-        pygame.sprite.Group.update(self, *args)
+    def update(self, fast_forward = False):
+        pygame.sprite.Group.update(self)
         self.__reset_current_pair()
 
         dropping = False
         for puyo in sorted(self, key=lambda puyo: puyo.row, reverse=True):
-            if self.__move_puyo(puyo, 0, 1):
+            speed = 15 if fast_forward and puyo in self.current_pair else 1
+            if self.__move_puyo(puyo, 0, speed):
                 dropping = True
 
         if self.state == 'scoring' and not dropping:

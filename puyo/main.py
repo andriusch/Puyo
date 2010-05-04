@@ -38,7 +38,7 @@ while True:
             if event.key == K_RIGHT:
                 board.move(True)
 
-    board.update()
+    board.update(pygame.key.get_pressed()[K_DOWN])
 
     screen.blit(background, (0, 0))
     board.draw(screen)

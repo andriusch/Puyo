@@ -9,6 +9,7 @@ class TestBoardCommon(object):
         puyo.x = col * 64
         puyo.y = row * 64 + 63
         self.subject.add(puyo)
+        return puyo
 
 class TestBoard(TestBoardCommon):
     def setup(self):
@@ -157,6 +158,13 @@ class TestBoardWithPuyoPair(TestBoardCommon):
         self.add_puyo('red', 13, 2)
         self.subject.update()
         assert_equal(self.subject.current_pair, ())
+
+    def test_fast_forward(self):
+        puyo = self.add_puyo('red', 3, 3)
+        self.subject.update(True)
+        assert_equal(puyo.y, 4 * 64)
+        assert_equal(self.p1.y, 10)
+        assert_equal(self.p2.y, -54)
 
 class TestBoardWithPuyos(TestBoardCommon):
     def setup(self):
