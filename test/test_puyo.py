@@ -5,7 +5,7 @@ import pygame
 
 class TestPuyo:
     def setUp(self):
-        self.board = Board((32, 32))
+        self.board = Board(10, (14, 6), (32, 32))
         self.puyo = Puyo(self.board, 'red')
         self.board.add(self.puyo)
 

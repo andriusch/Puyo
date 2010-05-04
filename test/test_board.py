@@ -13,7 +13,7 @@ class TestBoardCommon(object):
 
 class TestBoard(TestBoardCommon):
     def setup(self):
-        self.subject = Board((64, 64))
+        self.subject = Board(10, (15, 6), (64, 64))
 
     def test_initializing(self):
         assert_equal(self.subject.rows_count, 15)
@@ -37,7 +37,7 @@ class TestBoard(TestBoardCommon):
 
 class TestBoardWithPuyoPair(TestBoardCommon):
     def setup(self):
-        self.subject = Board((64, 64))
+        self.subject = Board(10, (15, 6), (64, 64))
         self.subject.spawn_puyo_pair()
         self.p1 = self.subject.sprites()[0]
         self.p2 = self.subject.sprites()[1]
@@ -168,7 +168,7 @@ class TestBoardWithPuyoPair(TestBoardCommon):
 
 class TestBoardWithPuyos(TestBoardCommon):
     def setup(self):
-        self.subject = Board((64, 64))
+        self.subject = Board(10, (15, 6), (64, 64))
         self.add_puyo('red', 14, 0)
         self.add_puyo('red', 14, 1)
         self.add_puyo('red', 13, 0)

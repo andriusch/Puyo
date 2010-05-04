@@ -4,11 +4,11 @@ from score import *
 COLORS = ['blue', 'green', 'purple', 'red', 'yellow']
 
 class Board(pygame.sprite.Group, Movable):
-    def __init__(self, puyo_size):
+    def __init__(self, x, size, puyo_size):
         pygame.sprite.Group.__init__(self)
-        self.rows_count = 15
-        self.cols_count = 6
-        Movable.__init__(self, pygame.Rect(10, 10 + puyo_size[1], puyo_size[0] * self.cols_count, puyo_size[1] * (self.rows_count - 1)))
+        self.rows_count = size[0]
+        self.cols_count = size[1]
+        Movable.__init__(self, pygame.Rect(x, 10 + puyo_size[1], puyo_size[0] * self.cols_count, puyo_size[1] * (self.rows_count - 1)))
 
         self.background = pygame.Surface(self.rect.size)
         self.background.fill((240, 240, 240))
