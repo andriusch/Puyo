@@ -6,6 +6,13 @@ pygame.init()
 class TestBoardCommon(object):
     def add_puyo(self, color, row, col):
         puyo = Puyo(self.subject, color)
+        return self._add_puyo(puyo, row, col)
+
+    def add_neutral_puyo(self, row, col):
+        puyo = NeutralPuyo(self.subject, row, col)
+        return self._add_puyo(puyo, row, col)
+
+    def _add_puyo(self, puyo, row, col):
         puyo.x = col * 64
         puyo.y = row * 64 + 63
         self.subject.add(puyo)
@@ -191,10 +198,6 @@ class TestBoardWithPuyos(TestBoardCommon):
         assert_equal(len(self.subject), 5)
         assert_equal(self.subject.state, 'scoring')
 
-    def test_does_not_delete_less_than_four(self):
-        self.subject.update()
-        assert_equal(len(self.subject), 5)
-
     def test_deletes_only_same_color(self):
         self.add_puyo('green', 12, 0)
         self.subject.update()
@@ -211,4 +214,10 @@ class TestBoardWithPuyos(TestBoardCommon):
         assert_equal(self.subject.state, 'placing')
         assert_equal(len(self.subject), 5)
         assert_equal(self.subject.score.chain, 0)
+
+    def test_drops_neutral_puyos(self):
+        self.subject.score.drop_neutrals = 8
+        self.subject.update()
+        assert_equal(len(self.subject), 11)
+        assert_equal(self.subject.score.drop_neutrals, 0)
 

@@ -2,9 +2,10 @@ from puyo.board import *
 from puyo.puyo import *
 from nose.tools import *
 import pygame
+pygame.init()
 
 class TestPuyo:
-    def setUp(self):
+    def setup(self):
         self.board = Board(10, (14, 6), (32, 32))
         self.puyo = Puyo(self.board, 'red')
         self.board.add(self.puyo)
@@ -15,6 +16,8 @@ class TestPuyo:
         assert_equal(self.puyo.x, 64)
         assert_equal(self.puyo.image.get_width(), 32)
         assert_equal(self.puyo.image.get_height(), 32)
+        assert_equal(self.puyo.speed, 1)
+        assert_equal(self.puyo.points, 10)
 
     def test_return_correct_row(self):
         self.puyo.y = 63
@@ -51,4 +54,20 @@ class TestPuyo:
     def test_same_color(self):
         assert self.puyo.same_color(Puyo(self.board, 'red'))
         assert_false(self.puyo.same_color(Puyo(self.board, 'green')))
+        assert self.puyo.same_color(NeutralPuyo(self.board, 0, 0))
+
+class TestNeutralPuyo:
+    def setup(self):
+        self.board = Board(10, (14, 6), (32, 32))
+        self.puyo = NeutralPuyo(self.board, 0, 0)
+        self.board.add(self.puyo)
+
+    def test_initializing(self):
+        assert_equal(self.puyo.color, 'neutral')
+        assert_equal(self.puyo.speed, 15)
+        assert_equal(self.puyo.points, 20)
+
+    def test_same_color_with_none(self):
+        assert_false(self.puyo.same_color(NeutralPuyo(self.board, 1, 0)))
+        assert_false(self.puyo.same_color(Puyo(self.board, 'red')))
 

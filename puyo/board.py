@@ -63,25 +63,39 @@ class Board(pygame.sprite.Group, Movable):
         self.add(puyo)
         return puyo
 
+    def __spawn_neutrals(self):
+        column_drops, left_drops = divmod(self.score.drop_neutrals, self.cols_count)
+        neutral_counts = [column_drops] * self.cols_count
+        for ind in range(left_drops):
+            neutral_counts[ind] += 1
+        random.shuffle(neutral_counts)
+        for col, neutral_count in enumerate(neutral_counts):
+            for row in range(neutral_count):
+                puyo = NeutralPuyo(self, 0 - row, col)
+                self.add(puyo)
+        self.score.drop_neutrals = 0
+
     def update(self, fast_forward = False):
         pygame.sprite.Group.update(self)
         self.__reset_current_pair()
 
         dropping = False
         for puyo in sorted(self, key=lambda puyo: puyo.row, reverse=True):
-            speed = 15 if fast_forward and puyo in self.current_pair else 1
+            speed = 15 if fast_forward and puyo in self.current_pair else puyo.speed
             if self.__move_puyo(puyo, 0, speed):
                 dropping = True
 
         if self.state == 'scoring' and not dropping:
             if not self.__scan_puyo_combos():
-                self.state = 'placing'
-                self.spawn_puyo_pair()
+                if self.score.drop_neutrals:
+                    self.__spawn_neutrals()
+                else:
+                    self.state = 'placing'
+                    self.spawn_puyo_pair()
         self._board = None
 
     def __reset_current_pair(self):
         for puyo in self.current_pair:
-            bpuyo = self.board[puyo.row + 1][puyo.col]
             if not self.__can_move(puyo, 0, 1, self.current_pair):
                 self.current_pair = ()
                 self.state = 'scoring'
@@ -92,8 +106,7 @@ class Board(pygame.sprite.Group, Movable):
             result = set([])
             self.__scan_puyo_combos_from(puyo, puyo, result)
 
-            if len(result) >= 4:
-                self.score.add_score(len(result))
+            if self.score.add_score(result):
                 self.remove(*result)
                 for deleted_puyo in result:
                     self.board[deleted_puyo.row][deleted_puyo.col] = None

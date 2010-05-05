@@ -50,6 +50,8 @@ while True:
 
     board.update(pygame.key.get_pressed()[K_DOWN])
     board2.update(pygame.key.get_pressed()[K_s])
+    board.score.drop_neutrals += board2.score.neutrals_scored()
+    board2.score.drop_neutrals += board.score.neutrals_scored()
 
     screen.blit(background, (0, 0))
     board.draw(screen)
