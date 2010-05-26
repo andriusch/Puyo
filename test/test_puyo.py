@@ -16,7 +16,7 @@ class TestPuyo:
         assert_equal(self.puyo.x, 64)
         assert_equal(self.puyo.image.get_width(), 32)
         assert_equal(self.puyo.image.get_height(), 32)
-        assert_equal(self.puyo.speed, 1)
+        assert_equal(self.puyo.speed(False), 1)
         assert_equal(self.puyo.points, 10)
 
     def test_return_correct_row(self):
@@ -64,7 +64,7 @@ class TestNeutralPuyo:
 
     def test_initializing(self):
         assert_equal(self.puyo.color, 'neutral')
-        assert_equal(self.puyo.speed, 15)
+        assert_equal(self.puyo.speed(False), 15)
         assert_equal(self.puyo.points, 20)
 
     def test_same_color_with_none(self):

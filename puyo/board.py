@@ -7,7 +7,7 @@ class Board(pygame.sprite.Group, Movable):
         pygame.sprite.Group.__init__(self)
         self.rows_count = size[0]
         self.cols_count = size[1]
-        Movable.__init__(self, pygame.Rect(x, 10 + puyo_size[1], puyo_size[0] * self.cols_count, puyo_size[1] * (self.rows_count - 1)))
+        Movable.__init__(self, pygame.Rect(x, 10 + puyo_size[1], puyo_size[0] * self.cols_count, puyo_size[1] * self.rows_count))
 
         self.background = pygame.Surface(self.rect.size)
         self.background.fill((240, 240, 240))
@@ -24,6 +24,7 @@ class Board(pygame.sprite.Group, Movable):
         self.score.generate_next_pair()
         self._board = None
         self.score.chain = 0
+        self.spawned = True
 
     def move(self, right):
         if not self.current_pair:
@@ -61,7 +62,7 @@ class Board(pygame.sprite.Group, Movable):
 
     def __spawn_puyo(self, index):
         puyo = Puyo(self, self.score.next_pair[index].color, index - 1)
-        if not (self.board[puyo.row][puyo.col] is None):
+        if puyo.row >= 0 and not (self.board[puyo.row][puyo.col] is None):
             self.game_over = True
         self.add(puyo)
         return puyo
@@ -79,12 +80,13 @@ class Board(pygame.sprite.Group, Movable):
         self.score.drop_neutrals = 0
 
     def update(self, fast_forward = False):
+        self.spawned = False
         pygame.sprite.Group.update(self)
-        self.__reset_current_pair()
+        self.__reset_current_pair(fast_forward)
 
         dropping = False
         for puyo in sorted(self, key=lambda puyo: puyo.row, reverse=True):
-            speed = 15 if fast_forward and puyo in self.current_pair else puyo.speed
+            speed = puyo.speed(fast_forward and puyo in self.current_pair)
             if self.__move_puyo(puyo, 0, speed):
                 dropping = True
 
@@ -97,9 +99,9 @@ class Board(pygame.sprite.Group, Movable):
                     self.spawn_puyo_pair()
         self._board = None
 
-    def __reset_current_pair(self):
+    def __reset_current_pair(self, fast_forward):
         for puyo in self.current_pair:
-            if not self.__can_move(puyo, 0, 1, self.current_pair):
+            if not self.__can_move(puyo, 0, puyo.speed(fast_forward), self.current_pair):
                 self.current_pair = ()
                 self.state = 'scoring'
                 return
@@ -156,15 +158,18 @@ class Board(pygame.sprite.Group, Movable):
         elif y >= self.height or x < 0 or x >= self.width:
             return False
         else:
-            blocking_puyo = self.board[row][col]
-            return blocking_puyo is None or blocking_puyo.row != row or blocking_puyo.col != col or (blocking_puyo in non_blocking_puyos)
+            blocking_puyo = None
+            for puyo in self:
+                if puyo.row == row and puyo.col == col:
+                    blocking_puyo = puyo
+            return blocking_puyo is None or (blocking_puyo in non_blocking_puyos)
 
-    def __empty_board(self):
+    def empty_board(self):
         return [[None for col in range(self.cols_count)] for row in range(self.rows_count)]
 
     def get_board(self):
         if self._board is None:
-            self._board = self.__empty_board()
+            self._board = self.empty_board()
             for puyo in self:
                 if puyo.row >= 0:
                     self._board[puyo.row][puyo.col] = puyo

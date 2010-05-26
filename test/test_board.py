@@ -28,7 +28,7 @@ class TestBoard(TestBoardCommon):
         assert_equal(self.subject.x, 10)
         assert_equal(self.subject.y, 74)
         assert_equal(self.subject.width, 64 * 6)
-        assert_equal(self.subject.height, 64 * 14)
+        assert_equal(self.subject.height, 64 * 15)
         assert_equal(self.subject.puyo_size, (64, 64))
         assert_equal(self.subject.current_pair, ())
         assert_equal(self.subject.state, 'placing')
@@ -160,7 +160,7 @@ class TestBoardWithPuyoPair(TestBoardCommon):
         assert_equal(self.subject.state, 'scoring')
 
     def test_reset_current_pair_if_dropped_on_other_puyo(self):
-        self.p2.y = self.subject.height - 65
+        self.p2.y = self.subject.height - 1
         self.add_puyo('red', 13, 2)
         self.subject.update()
         assert_equal(self.subject.current_pair, ())

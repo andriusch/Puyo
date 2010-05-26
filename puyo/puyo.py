@@ -8,8 +8,10 @@ class Puyo(Sprite, Movable):
         width, height = parent.puyo_size
         Movable.__init__(self, pygame.Rect(col * width, row * height, width, height), parent)
         self.color = color
-        self.speed = 1
         self.points = 10
+
+    def speed(self, fast):
+        return 15 if fast else 1
 
     def get_row(self, y = None):
         if y is None:
@@ -31,14 +33,16 @@ class Puyo(Sprite, Movable):
         return self.color == other_puyo.color or other_puyo.color == 'neutral'
 
     def __repr__(self):
-        return '<Puyo %s %d %d>' % (self.color, self.row, self.col)
+        return '<Puyo %s %d %d x:%d y:%d>' % (self.color, self.row, self.col, self.x, self.y)
 
 class NeutralPuyo(Puyo):
     def __init__(self, parent, row, col):
         Puyo.__init__(self, parent, 'neutral', row, col)
-        self.speed = 15
         self.points = 20
 
     def same_color(self, other_puyo):
         return False
+
+    def speed(self, fast):
+        return 15
 
