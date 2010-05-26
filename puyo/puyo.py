@@ -30,6 +30,9 @@ class Puyo(Sprite, Movable):
     def same_color(self, other_puyo):
         return self.color == other_puyo.color or other_puyo.color == 'neutral'
 
+    def __repr__(self):
+        return '<Puyo %s %d %d>' % (self.color, self.row, self.col)
+
 class NeutralPuyo(Puyo):
     def __init__(self, parent, row, col):
         Puyo.__init__(self, parent, 'neutral', row, col)

@@ -5,6 +5,7 @@ import pygame
 from pygame.locals import *
 
 from board import *
+from player import *
 
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
@@ -22,10 +23,8 @@ pygame.display.flip()
 
 puyo_size = (48, 48)
 board_size = (12, 6)
-board = Board(410, board_size, puyo_size)
-board.spawn_puyo_pair()
-board2 = Board(10, board_size, puyo_size)
-board2.spawn_puyo_pair()
+player1 = HumanPlayer(Board(10, board_size, puyo_size), (K_UP, K_LEFT, K_RIGHT, K_DOWN))
+player2 = ComputerPlayer(Board(410, board_size, puyo_size))
 clock = pygame.time.Clock()
 
 while True:
@@ -35,26 +34,16 @@ while True:
         if event.type == QUIT:
             sys.exit(0)
         elif event.type == KEYDOWN:
-            if event.key == K_UP:
-                board.rotate()
-            if event.key == K_LEFT:
-                board.move(False)
-            if event.key == K_RIGHT:
-                board.move(True)
-            if event.key == K_w:
-                board2.rotate()
-            if event.key == K_a:
-                board2.move(False)
-            if event.key == K_d:
-                board2.move(True)
+            player1.key_press(event.key)
+            player2.key_press(event.key)
 
-    board.update(pygame.key.get_pressed()[K_DOWN])
-    board2.update(pygame.key.get_pressed()[K_s])
-    board.score.drop_neutrals += board2.score.neutrals_scored()
-    board2.score.drop_neutrals += board.score.neutrals_scored()
+    player1.update()
+    player2.update()
+    player1.drop_neutrals(player2)
+    player2.drop_neutrals(player1)
 
     screen.blit(background, (0, 0))
-    board.draw(screen)
-    board2.draw(screen)
+    player1.board.draw(screen)
+    player2.board.draw(screen)
     pygame.display.flip()
 

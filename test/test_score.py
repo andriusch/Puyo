@@ -5,7 +5,7 @@ import pygame
 class TestScore:
     def setup(self):
         pygame.init()
-        self.subject = Score(pygame.Rect(0, 0, 128, 32))
+        self.subject = Score(Movable(pygame.Rect(0, 0, 0, 0)), pygame.Rect(0, 0, 128, 32))
         self.subject.puyo_size = (32, 32)
 
     def puyos(self, count, color = 'red'):

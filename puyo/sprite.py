@@ -1,6 +1,6 @@
 import pygame, os
 
-class Movable():
+class Movable(object):
     def __init__(self, rect, parent = None):
         self.x = rect.left
         self.y = rect.top

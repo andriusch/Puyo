@@ -1,7 +1,6 @@
 import pygame, random
 from puyo import *
 from score import *
-COLORS = ['blue', 'green', 'purple', 'red', 'yellow']
 
 class Board(pygame.sprite.Group, Movable):
     def __init__(self, x, size, puyo_size):
@@ -17,10 +16,11 @@ class Board(pygame.sprite.Group, Movable):
         self._board = None
         self.current_pair = ()
         self.state = 'placing'
-        self.score = Score(pygame.Rect(self.rect.left, self.rect.top - puyo_size[1], self.rect.width, puyo_size[1]))
+        self.score = Score(self, pygame.Rect(0, -puyo_size[1], self.width, puyo_size[1]))
 
     def spawn_puyo_pair(self):
-        self.current_pair = (self.__spawn_puyo(self.rows_count - 2), self.__spawn_puyo(self.rows_count - 1))
+        self.current_pair = (self.__spawn_puyo(0), self.__spawn_puyo(1))
+        self.score.generate_next_pair()
         self._board = None
         self.score.chain = 0
 
@@ -58,8 +58,8 @@ class Board(pygame.sprite.Group, Movable):
                     self.__move_puyo(self.current_pair[1], -self.puyo_size[0], -self.puyo_size[1])
         self._board = None
 
-    def __spawn_puyo(self, row):
-        puyo = Puyo(self, random.choice(COLORS), self.rows_count - row - 2)
+    def __spawn_puyo(self, index):
+        puyo = Puyo(self, self.score.next_pair[index].color, index - 1)
         self.add(puyo)
         return puyo
 
