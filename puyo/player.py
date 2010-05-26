@@ -11,6 +11,9 @@ class Player(object):
     def drop_neutrals(self, other):
         self.board.score.drop_neutrals += other.board.score.neutrals_scored()
 
+    def game_over(self):
+        return self.board.game_over
+
 
 class HumanPlayer(Player):
     def __init__(self, board, keys):

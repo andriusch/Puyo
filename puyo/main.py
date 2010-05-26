@@ -27,6 +27,8 @@ player1 = HumanPlayer(Board(10, board_size, puyo_size), (K_UP, K_LEFT, K_RIGHT, 
 player2 = ComputerPlayer(Board(410, board_size, puyo_size))
 clock = pygame.time.Clock()
 
+font = pygame.font.SysFont(None, 150)
+
 while True:
     clock.tick(60)
 
@@ -43,7 +45,12 @@ while True:
     player2.drop_neutrals(player1)
 
     screen.blit(background, (0, 0))
-    player1.board.draw(screen)
-    player2.board.draw(screen)
+
+    if player1.game_over() or player2.game_over():
+        text = "Player 2 won!" if player1.game_over() else "Player 1 won!"
+        screen.blit(font.render(text, True, (0, 255, 0)), (50, 250))
+    else:
+        player1.board.draw(screen)
+        player2.board.draw(screen)
     pygame.display.flip()
 

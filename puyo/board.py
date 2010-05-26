@@ -17,6 +17,7 @@ class Board(pygame.sprite.Group, Movable):
         self.current_pair = ()
         self.state = 'placing'
         self.score = Score(self, pygame.Rect(0, -puyo_size[1], self.width, puyo_size[1]))
+        self.game_over = False
 
     def spawn_puyo_pair(self):
         self.current_pair = (self.__spawn_puyo(0), self.__spawn_puyo(1))
@@ -60,6 +61,8 @@ class Board(pygame.sprite.Group, Movable):
 
     def __spawn_puyo(self, index):
         puyo = Puyo(self, self.score.next_pair[index].color, index - 1)
+        if not (self.board[puyo.row][puyo.col] is None):
+            self.game_over = True
         self.add(puyo)
         return puyo
 
